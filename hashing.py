@@ -19,6 +19,9 @@ def verify_password(stored_password: str, provided_password: str) -> bool:
         return True
     except argon2.exceptions.VerifyMismatchError:
         return False
+    except argon2.exceptions.InvalidHash:
+        print("The stored password hash is invalid.")
+        return False
 
 def generate_random_password(length: int = 12) -> str:
     # Generate a random password
@@ -55,10 +58,15 @@ def menu():
             hashed_password = hash_password(password)
             print(f"Hashed Password: {hashed_password}")
         elif choice == '2':
-            stored_password = getpass("Enter the stored hashed password: ")
-            provided_password = getpass("Enter the password to verify: ")
-            is_valid = verify_password(stored_password, provided_password)
-            print(f"Password is valid: {is_valid}")
+            stored_password = input("Enter the stored hashed password: ")
+            while True:
+                provided_password = getpass("Enter the password to verify: ")
+                is_valid = verify_password(stored_password, provided_password)
+                if is_valid:
+                    print("Password is valid.")
+                    break
+                else:
+                    print("Password is invalid. Please try again.")
         elif choice == '3':
             try:
                 length = int(input("Enter the length of the random password: "))
